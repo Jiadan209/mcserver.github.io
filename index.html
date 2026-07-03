@@ -455,15 +455,6 @@
             background: linear-gradient(90deg, #e67e22, #f39c12, #e67e22);
         }
 
-        /* ===== 停服状态覆盖层 ===== */
-        .server-card.creative.maintenance {
-            border-color: var(--orange);
-            box-shadow: 0 0 0 1px rgba(230, 126, 34, 0.20), var(--shadow-md);
-        }
-        .server-card.creative.maintenance:hover {
-            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.25), var(--shadow-lg);
-        }
-
         .card-header-inner {
             display: flex;
             align-items: center;
@@ -513,27 +504,6 @@
             flex-wrap: wrap;
         }
 
-        /* ===== 停服标签 ===== */
-        .offline-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: var(--orange);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 50px;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 12px var(--orange-glow);
-            animation: tagPulse 2.5s ease-in-out infinite;
-            white-space: nowrap;
-        }
-        [data-theme="dark"] .offline-tag {
-            background: #d35400;
-            box-shadow: 0 2px 16px rgba(230, 126, 34, 0.35);
-        }
         @keyframes tagPulse {
             0%,
             100% {
@@ -1099,13 +1069,6 @@
                                 <div class="server-version">🔢 版本：<span class="version-text">加载中...</span></div>
                                 <div class="player-list-box" id="survival-player-list"><span style="color:var(--text-tertiary);">等待查询...</span></div>
                             </div>
-                                <ul class="card-features">
-                                    <li><span class="feat-dot"></span> 无限资源，自由建造</li>
-                                    <li><span class="feat-dot"></span> 红石科技无限制，尽情实验</li>
-                                    <li><span class="feat-dot"></span> 建筑展示区，互相欣赏</li>
-                                    <li><span class="feat-dot"></span> 创意交流社区，灵感碰撞</li>
-                                </ul>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1172,10 +1135,8 @@
                     </div>
                 </div>
             </div>
-
-        </div><!-- /main-content -->
-
-    </div><!-- /app-container -->
+        </div>
+    </div>
 
     <script>
         (function() {
@@ -1314,7 +1275,7 @@
                 }, 2200);
             }
 
-            // ===== 复制 IP（生存服可用） =====
+            // ===== 复制 IP =====
             document.querySelectorAll('.btn-copy:not([disabled])').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const ip = btn.dataset.ip;
@@ -1333,7 +1294,7 @@
                 });
             });
 
-            // ===== 服务器状态查询（仅生存服） =====
+            // ===== 服务器状态查询 =====
             async function fetchServerStatus(server) {
                 const url =
                     `https://uapis.cn/api/v1/game/minecraft/serverstatus?server=${encodeURIComponent(server)}`;
