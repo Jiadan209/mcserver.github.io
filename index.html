@@ -1099,41 +1099,12 @@
                                 <div class="server-version">🔢 版本：<span class="version-text">加载中...</span></div>
                                 <div class="player-list-box" id="survival-player-list"><span style="color:var(--text-tertiary);">等待查询...</span></div>
                             </div>
-
-                            <!-- ===== 创造服（停服维护） ===== -->
-                            <div class="server-card creative maintenance">
-                                <div class="card-header-inner">
-                                    <div class="card-icon">✨</div>
-                                    <div>
-                                        <div class="card-type">创造模式</div>
-                                        <div class="card-name">
-                                            无限创造服
-                                            <span class="offline-tag">⏸️停服</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-status">
-                                    <span class="status-indicator maintenance"></span>
-                                    <span class="status-text">停服</span>
-                                </div>
                                 <ul class="card-features">
                                     <li><span class="feat-dot"></span> 无限资源，自由建造</li>
                                     <li><span class="feat-dot"></span> 红石科技无限制，尽情实验</li>
                                     <li><span class="feat-dot"></span> 建筑展示区，互相欣赏</li>
                                     <li><span class="feat-dot"></span> 创意交流社区，灵感碰撞</li>
                                 </ul>
-                                <div class="card-ip-box">
-                                    <div>
-                                        <div class="ip-label">服务器地址</div>
-                                        <div class="ip-address">frp-say.com:49085</div>
-                                    </div>
-                                    <button class="btn-copy" data-ip="frp-say.com:49085" disabled style="opacity:0.4;cursor:not-allowed;">📋 暂不可用</button>
-                                </div>
-                                <div class="player-count">📊 在线玩家：<strong style="color:var(--text-tertiary);">停服</strong></div>
-                                <div class="server-version">🔢 版本：<span class="version-text">—</span></div>
-                                <div class="player-list-box" style="justify-content:center;color:var(--text-tertiary);">
-                                    <span>🔧 服务器停服</span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -1191,9 +1162,6 @@
                             <p>我们是一个 <strong>MC 1.21.8 纯原版生电服务器</strong></p>
                             <p>专注红石科技、生存电路、大型生电工程建造，无魔改、无模组。</p>
                             <p>适合热爱原版生存、钻研红石机械、喜欢团队生电建设的玩家加入。</p>
-                            <p style="margin-top:12px;padding:10px 16px;background:rgba(230,126,34,0.08);border-radius:8px;border:1px solid rgba(230,126,34,0.15);">
-                                ⚠️ 创造服目前 <strong>停服</strong>
-                            </p>
                         </div>
 
                         <div class="cta-box">
@@ -1385,11 +1353,6 @@
                 const versionSpan = card.querySelector('.version-text');
                 const playerListBox = card.querySelector('.player-list-box');
 
-                // 如果是维护中的创造服，跳过自动更新（保持停服状态）
-                if (card.classList.contains('maintenance')) {
-                    return;
-                }
-
                 if (!data) {
                     if (statusText) statusText.textContent = '查询失败';
                     if (indicator) indicator.classList.add('offline');
@@ -1436,9 +1399,6 @@
             initTheme();
             refreshStatus();
             setInterval(refreshStatus, 90000);
-
-            // 创造服保持停服状态（不参与轮询）
-            console.log('🔧 创造服已进入停服');
         })();
     </script>
 
