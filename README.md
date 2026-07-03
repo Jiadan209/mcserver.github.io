@@ -1,2 +1,2 @@
-# mcserver.github.io
-Mc Server
+# Mc 1.21.8 生存服务器
+Mc 1.21.8 生存服务器
