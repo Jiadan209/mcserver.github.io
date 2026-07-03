@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Misaka Mikoto Minecraft服务器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <style>
+        /* ========== 明亮模式变量 ========== */
+        :root {
+            --bg: #f5f5f7;
+            --card-bg: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --text-tertiary: #98989d;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-light: rgba(0, 0, 0, 0.04);
+            --green: #5dbb3e;
+            --green-glow: rgba(93, 187, 62, 0.25);
+            --blue: #5b8dee;
+            --blue-glow: rgba(91, 141, 238, 0.25);
+            --orange: #e67e22;
+            --orange-glow: rgba(230, 126, 34, 0.25);
+            --red: #e74c3c;
+            --accent: #5dbb3e;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --acrylic-bg: rgba(255, 255, 255, 0.62);
+            --acrylic-blur: blur(24px) saturate(180%);
+            --acrylic-border: rgba(255, 255, 255, 0.5);
+            --radius: 16px;
+            --radius-lg: 20px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ========== 深色模式变量 ========== */
+        [data-theme="dark"] {
+            --bg: #0d0d14;
+            --card-bg: #181825;
+            --text-primary: #e8e8ec;
+            --text-secondary: #a0a0b8;
+            --text-tertiary: #6e6e88;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.04);
+            --green: #5dbb3e;
+            --green-glow: rgba(93, 187, 62, 0.35);
+            --blue: #5b8dee;
+            --blue-glow: rgba(91, 141, 238, 0.35);
+            --orange: #e67e22;
+            --orange-glow: rgba(230, 126, 34, 0.30);
+            --red: #e74c3c;
+            --accent: #5dbb3e;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --acrylic-bg: rgba(20, 20, 30, 0.72);
+            --acrylic-border: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ========== 全局重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.5;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* ========== 背景装饰光晕 ========== */
+        .bg-ornament {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+            will-change: transform;
+        }
+        .bg-ornament-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(93, 187, 62, 0.13) 0%, transparent 70%);
+            top: -15%;
+            right: -8%;
+        }
+        .bg-ornament-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(91, 141, 238, 0.10) 0%, transparent 70%);
+            bottom: -10%;
+            left: -5%;
+        }
+        [data-theme="dark"] .bg-ornament-1 {
+            opacity: 0.25;
+        }
+        [data-theme="dark"] .bg-ornament-2 {
+            opacity: 0.20;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.25;
+        }
+        [data-theme="dark"] #particleCanvas {
+            opacity: 0.45;
+        }
+
+        /* ========== 主题切换按钮 ========== */
+        .theme-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--acrylic-bg);
+            backdrop-filter: var(--acrylic-blur);
+            -webkit-backdrop-filter: var(--acrylic-blur);
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+        }
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ========== 亚克力 Tab 栏 ========== */
+        .tab-nav-wrapper {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            padding: 8px 24px 0;
+            margin-bottom: 28px;
+        }
+
+        .tab-nav {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: var(--acrylic-bg);
+            backdrop-filter: var(--acrylic-blur);
+            -webkit-backdrop-filter: var(--acrylic-blur);
+            border: 1px solid var(--acrylic-border);
+            border-radius: 50px;
+            box-shadow: var(--shadow-md), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+            transition: box-shadow var(--transition);
+        }
+        .tab-nav:hover {
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        }
+        .tab-nav::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50px;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.30) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+            opacity: 0.6;
+            z-index: 0;
+            transition: opacity var(--transition);
+        }
+        .tab-nav:hover::before {
+            opacity: 0.8;
+        }
+        [data-theme="dark"] .tab-nav::before {
+            opacity: 0.3;
+        }
+        [data-theme="dark"] .tab-nav:hover::before {
+            opacity: 0.5;
+        }
+
+        .tab-btn {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 22px;
+            border: none;
+            background: transparent;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color var(--transition), background var(--transition), transform 0.12s ease;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: inherit;
+        }
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.45);
+        }
+        .tab-btn:active {
+            transform: scale(0.96);
+        }
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            box-shadow: var(--shadow-md), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+        }
+        [data-theme="dark"] .tab-btn.active {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow-sm);
+        }
+        .tab-btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .tab-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tab-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ========== 主容器 ========== */
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ========== 内容面板 ========== */
+        .main-content {
+            display: block;
+            min-height: 500px;
+        }
+
+        .content-panel {
+            display: none;
+            animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .content-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== 卡片样式 ========== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: box-shadow var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .card-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .card-header .subtitle {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            font-weight: 400;
+        }
+
+        .card-body {
+            padding: 28px;
+        }
+
+        /* ========== Hero 面板 ========== */
+        .hero-content {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(93, 187, 62, 0.08);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .hero-badge .dot {
+            width: 10px;
+            height: 10px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 6px var(--green-glow);
+            }
+            50% {
+                box-shadow: 0 0 16px rgba(93, 187, 62, 0.5);
+            }
+        }
+
+        .hero-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 2.4rem;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+        .highlight {
+            color: var(--green);
+            text-shadow: 0 0 30px var(--green-glow);
+        }
+        .highlight-blue {
+            color: var(--blue);
+            text-shadow: 0 0 30px var(--blue-glow);
+        }
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 6px 20px var(--green-glow);
+        }
+        .btn-primary:hover {
+            background: #6cc94a;
+            transform: translateY(-3px);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+        .btn-outline:hover {
+            border-color: var(--green);
+            background: rgba(93, 187, 62, 0.05);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ========== 服务器卡片 ========== */
+        .server-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+        }
+
+        .server-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 28px 26px;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .server-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .server-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        .server-card.survival::before {
+            background: linear-gradient(90deg, #5dbb3e, #7ec850, #5dbb3e);
+        }
+        .server-card.creative::before {
+            background: linear-gradient(90deg, #e67e22, #f39c12, #e67e22);
+        }
+
+        /* ===== 停服状态覆盖层 ===== */
+        .server-card.creative.maintenance {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 1px rgba(230, 126, 34, 0.20), var(--shadow-md);
+        }
+        .server-card.creative.maintenance:hover {
+            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.25), var(--shadow-lg);
+        }
+
+        .card-header-inner {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            background: rgba(93, 187, 62, 0.10);
+            border: 2px solid rgba(93, 187, 62, 0.25);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .card-icon {
+            background: rgba(93, 187, 62, 0.15);
+            border-color: rgba(93, 187, 62, 0.30);
+        }
+        .creative .card-icon {
+            background: rgba(230, 126, 34, 0.12);
+            border-color: rgba(230, 126, 34, 0.30);
+        }
+        [data-theme="dark"] .creative .card-icon {
+            background: rgba(230, 126, 34, 0.18);
+            border-color: rgba(230, 126, 34, 0.35);
+        }
+
+        .card-type {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            color: var(--text-secondary);
+        }
+        .card-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== 停服标签 ===== */
+        .offline-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--orange);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 50px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 12px var(--orange-glow);
+            animation: tagPulse 2.5s ease-in-out infinite;
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .offline-tag {
+            background: #d35400;
+            box-shadow: 0 2px 16px rgba(230, 126, 34, 0.35);
+        }
+        @keyframes tagPulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.04);
+                opacity: 0.92;
+            }
+        }
+
+        .card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(93, 187, 62, 0.06);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+        [data-theme="dark"] .card-status {
+            background: rgba(93, 187, 62, 0.08);
+        }
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        .status-indicator.offline {
+            background: var(--red);
+            animation: none;
+        }
+        .status-indicator.maintenance {
+            background: var(--orange);
+            animation: pulse-orange 1.8s ease-in-out infinite;
+        }
+        @keyframes pulse-orange {
+            0%,
+            100% {
+                box-shadow: 0 0 6px var(--orange-glow);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(230, 126, 34, 0.5);
+            }
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .card-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .feat-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 2px;
+            background: var(--green);
+            flex-shrink: 0;
+        }
+        .creative .feat-dot {
+            background: var(--orange);
+        }
+        .creative.maintenance .feat-dot {
+            background: var(--orange);
+            opacity: 0.5;
+        }
+        .creative.maintenance .card-features li {
+            opacity: 0.6;
+        }
+
+        .card-ip-box {
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .creative.maintenance .card-ip-box {
+            opacity: 0.55;
+            filter: grayscale(0.3);
+        }
+        .ip-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            letter-spacing: 0.5px;
+        }
+        .ip-address {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+            word-break: break-all;
+        }
+        .btn-copy {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        [data-theme="dark"] .btn-copy {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-copy:hover {
+            background: rgba(93, 187, 62, 0.08);
+            border-color: var(--green);
+        }
+        .btn-copy.copied {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+        .creative.maintenance .btn-copy {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        .player-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .player-count strong {
+            color: var(--text-primary);
+        }
+        .server-version {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .version-text {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .creative.maintenance .version-text {
+            color: var(--text-tertiary);
+        }
+
+        .player-list-box {
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-height: 80px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .creative.maintenance .player-list-box {
+            background: rgba(230, 126, 34, 0.04);
+            border-color: rgba(230, 126, 34, 0.15);
+            justify-content: center;
+            color: var(--text-tertiary);
+        }
+        .player-tag {
+            background: rgba(93, 187, 62, 0.08);
+            color: var(--text-primary);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .player-tag {
+            background: rgba(93, 187, 62, 0.12);
+        }
+        .creative .player-tag {
+            background: rgba(230, 126, 34, 0.08);
+        }
+        [data-theme="dark"] .creative .player-tag {
+            background: rgba(230, 126, 34, 0.12);
+        }
+
+        /* ========== 特性网格 ========== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .feature-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 24px 20px;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .feature-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .feature-item h4 {
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .feature-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ========== 介绍 & CTA ========== */
+        .intro-box,
+        .cta-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow var(--transition);
+        }
+        .intro-box:hover,
+        .cta-box:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .intro-box::before {
+            content: '';
+            display: block;
+            height: 3px;
+            background: linear-gradient(90deg, #9b63e3, #c2a4f0, #9b63e3);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            margin: -40px -32px 24px;
+        }
+        .cta-box::before {
+            content: '';
+            display: block;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green), var(--blue), var(--green));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            margin: -40px -32px 24px;
+        }
+        .intro-box h3,
+        .cta-box h3 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+        .intro-box p,
+        .cta-box p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+        .cta-box p {
+            margin-bottom: 24px;
+        }
+
+        /* ========== Toast ========== */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px) scale(0.95);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            z-index: 9999;
+            border: 1px solid var(--green);
+            box-shadow: var(--shadow-lg);
+            font-family: inherit;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* ========== Footer ========== */
+        .footer {
+            text-align: center;
+            padding: 32px 24px 16px;
+            border-top: 1px solid var(--border-light);
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+        .footer p:last-child {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            .tab-nav-wrapper {
+                top: 12px;
+                padding: 4px 12px 0;
+                margin-bottom: 18px;
+            }
+            .tab-nav {
+                gap: 4px;
+                padding: 6px 8px;
+                border-radius: 36px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .tab-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .tab-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+                gap: 5px;
+                flex-shrink: 0;
+            }
+            .tab-icon {
+                width: 15px;
+                height: 15px;
+            }
+
+            .app-container {
+                padding: 0 16px 40px;
+            }
+
+            .hero-title {
+                font-size: 1.6rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .server-cards {
+                grid-template-columns: 1fr;
+            }
+            .card-header {
+                padding: 16px 20px;
+            }
+            .card-body {
+                padding: 20px;
+            }
+            .card-ip-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn-copy {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .theme-toggle {
+                bottom: 16px;
+                right: 16px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .intro-box,
+            .cta-box {
+                padding: 28px 20px;
+            }
+            .intro-box::before,
+            .cta-box::before {
+                margin: -28px -20px 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .toast {
+                bottom: 70px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            .card-name {
+                font-size: 1.2rem;
+            }
+            .offline-tag {
+                font-size: 0.55rem;
+                padding: 3px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .tab-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                gap: 4px;
+            }
+            .tab-icon {
+                width: 14px;
+                height: 14px;
+            }
+            .hero-title {
+                font-size: 1.3rem;
+            }
+            .card-name {
+                font-size: 1rem;
+                gap: 6px;
+            }
+            .offline-tag {
+                font-size: 0.5rem;
+                padding: 2px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 背景装饰 ===== -->
+    <div class="bg-ornament bg-ornament-1" aria-hidden="true"></div>
+    <div class="bg-ornament bg-ornament-2" aria-hidden="true"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- ===== 主题切换 ===== -->
+    <button class="theme-toggle" id="themeToggle" aria-label="切换明暗模式">🌓</button>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="app-container">
+
+        <!-- ===== 亚克力 Tab 栏 ===== -->
+        <div class="tab-nav-wrapper">
+            <nav class="tab-nav" id="tabNav" role="tablist" aria-label="页面导航">
+                <button class="tab-btn active" data-tab="home" role="tab" aria-selected="true" aria-controls="panel-home">
+                    <span class="tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+                    </span>
+                    首页
+                </button>
+                <button class="tab-btn" data-tab="servers" role="tab" aria-selected="false" aria-controls="panel-servers">
+                    <span class="tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6" y2="6.01"/><line x1="6" y1="18" x2="6" y2="18.01"/></svg>
+                    </span>
+                    服务器
+                </button>
+                <button class="tab-btn" data-tab="features" role="tab" aria-selected="false" aria-controls="panel-features">
+                    <span class="tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </span>
+                    特色
+                </button>
+                <button class="tab-btn" data-tab="about" role="tab" aria-selected="false" aria-controls="panel-about">
+                    <span class="tab-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    </span>
+                    关于
+                </button>
+            </nav>
+        </div>
+
+        <!-- ===== 主内容区 ===== -->
+        <div class="main-content">
+
+            <!-- ===== 首页面板 ===== -->
+            <div class="content-panel active" id="panel-home" role="tabpanel" aria-labelledby="tabNav">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🏠 欢迎来到方块世界</h3>
+                            <span class="subtitle">Misaka Mikoto Minecraft 服务器</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="hero-content">
+                            <div class="hero-badge">
+                                <span class="dot"></span> 服务器运行中 · 在线
+                            </div>
+                            <h1 class="hero-title">
+                                欢迎来到<br /><span class="highlight">方块</span>与<span class="highlight-blue">创造</span>的世界
+                            </h1>
+                            <p class="hero-subtitle">
+                                无论你是热爱原版生存的冒险家，还是钟情于无限创造的建筑大师，这里都有属于你的一方天地。
+                            </p>
+                            <div class="hero-buttons">
+                                <button class="btn btn-primary" data-tab-trigger="servers">🎮 查看服务器</button>
+                                <button class="btn btn-outline" data-tab-trigger="features">✨ 了解更多</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 服务器面板 ===== -->
+            <div class="content-panel" id="panel-servers" role="tabpanel" aria-labelledby="tabNav">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🌍 我们的服务器</h3>
+                            <span class="subtitle">选择你的冒险之旅，即刻启程</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="server-cards">
+                            <!-- ===== 生存服（正常运行） ===== -->
+                            <div class="server-card survival">
+                                <div class="card-header-inner">
+                                    <div class="card-icon">⚔️</div>
+                                    <div>
+                                        <div class="card-type">生存模式</div>
+                                        <div class="card-name">原味生存服</div>
+                                    </div>
+                                </div>
+                                <div class="card-status">
+                                    <span class="status-indicator"></span>
+                                    <span class="status-text">查询中...</span>
+                                </div>
+                                <ul class="card-features">
+                                    <li><span class="feat-dot"></span> 原版生存体验，保留纯粹乐趣</li>
+                                    <li><span class="feat-dot"></span> 领地保护系统，安心建造</li>
+                                    <li><span class="feat-dot"></span> 玩家经济交易，社区活跃</li>
+                                    <li><span class="feat-dot"></span> 定期举办生存挑战活动</li>
+                                </ul>
+                                <div class="card-ip-box">
+                                    <div>
+                                        <div class="ip-label">服务器地址</div>
+                                        <div class="ip-address">frp-van.com:41641</div>
+                                    </div>
+                                    <button class="btn-copy" data-ip="frp-van.com:41641">📋 复制IP</button>
+                                </div>
+                                <div class="player-count">📊 在线玩家：<strong>加载中...</strong></div>
+                                <div class="server-version">🔢 版本：<span class="version-text">加载中...</span></div>
+                                <div class="player-list-box" id="survival-player-list"><span style="color:var(--text-tertiary);">等待查询...</span></div>
+                            </div>
+
+                            <!-- ===== 创造服（停服维护） ===== -->
+                            <div class="server-card creative maintenance">
+                                <div class="card-header-inner">
+                                    <div class="card-icon">✨</div>
+                                    <div>
+                                        <div class="card-type">创造模式</div>
+                                        <div class="card-name">
+                                            无限创造服
+                                            <span class="offline-tag">⏸️ 停服维护</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-status">
+                                    <span class="status-indicator maintenance"></span>
+                                    <span class="status-text">停服维护中</span>
+                                </div>
+                                <ul class="card-features">
+                                    <li><span class="feat-dot"></span> 无限资源，自由建造</li>
+                                    <li><span class="feat-dot"></span> 红石科技无限制，尽情实验</li>
+                                    <li><span class="feat-dot"></span> 建筑展示区，互相欣赏</li>
+                                    <li><span class="feat-dot"></span> 创意交流社区，灵感碰撞</li>
+                                </ul>
+                                <div class="card-ip-box">
+                                    <div>
+                                        <div class="ip-label">服务器地址</div>
+                                        <div class="ip-address">frp-say.com:49085</div>
+                                    </div>
+                                    <button class="btn-copy" data-ip="frp-say.com:49085" disabled style="opacity:0.4;cursor:not-allowed;">📋 暂不可用</button>
+                                </div>
+                                <div class="player-count">📊 在线玩家：<strong style="color:var(--text-tertiary);">维护中</strong></div>
+                                <div class="server-version">🔢 版本：<span class="version-text">—</span></div>
+                                <div class="player-list-box" style="justify-content:center;color:var(--text-tertiary);">
+                                    <span>🔧 服务器维护中，预计 7 月中旬恢复开放</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 特色面板 ===== -->
+            <div class="content-panel" id="panel-features" role="tabpanel" aria-labelledby="tabNav">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🏆 为什么选择我们</h3>
+                            <span class="subtitle">用心打造优质的游戏体验</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="features-grid">
+                            <div class="feature-item">
+                                <span class="feature-icon">🛡️</span>
+                                <h4>稳定可靠</h4>
+                                <p>高性能服务器，全天候运行，低延迟畅玩</p>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">👥</span>
+                                <h4>友好社区</h4>
+                                <p>热情玩家互助，营造温馨的游戏氛围</p>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🔒</span>
+                                <h4>安全防护</h4>
+                                <p>防作弊系统与定期备份，保障游戏公平与数据安全</p>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🎉</span>
+                                <h4>精彩活动</h4>
+                                <p>定期举办赛事与主题活动，让游戏充满惊喜</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 关于面板 ===== -->
+            <div class="content-panel" id="panel-about" role="tabpanel" aria-labelledby="tabNav">
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3>🔧 关于我们</h3>
+                            <span class="subtitle">服务器介绍与加入方式</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="intro-box" style="margin-bottom:24px;">
+                            <h3>🔧 关于我们服务器</h3>
+                            <p>我们是一个 <strong>MC 1.21.8 纯原版生电服务器</strong></p>
+                            <p>专注红石科技、生存电路、大型生电工程建造，无魔改、无模组。</p>
+                            <p>适合热爱原版生存、钻研红石机械、喜欢团队生电建设的玩家加入。</p>
+                            <p style="margin-top:12px;padding:10px 16px;background:rgba(230,126,34,0.08);border-radius:8px;border:1px solid rgba(230,126,34,0.15);">
+                                ⚠️ 创造服目前 <strong>停服维护</strong>，预计 7 月中旬恢复，生存服正常开放。
+                            </p>
+                        </div>
+
+                        <div class="cta-box">
+                            <h3>🎮 准备好加入了吗？</h3>
+                            <p>复制上方服务器IP，打开Minecraft，粘贴地址即可加入！支持Java版与基岩版。</p>
+                            <button class="btn btn-primary" data-tab-trigger="servers">🚀 选择服务器加入</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /main-content -->
+
+        <!-- ===== Footer ===== -->
+        <footer class="footer">
+            <p>© 2025 方块世界 Minecraft服务器</p>
+            <p>Minecraft 是 Mojang AB 的注册商标。</p>
+        </footer>
+
+    </div><!-- /app-container -->
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== 主题切换 =====
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+            const THEME_KEY = 'mc-server-theme';
+
+            function getSystemTheme() {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            function setTheme(theme) {
+                html.setAttribute('data-theme', theme);
+                localStorage.setItem(THEME_KEY, theme);
+                themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            }
+
+            function initTheme() {
+                const saved = localStorage.getItem(THEME_KEY);
+                setTheme(saved || getSystemTheme());
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const curr = html.getAttribute('data-theme');
+                setTheme(curr === 'dark' ? 'light' : 'dark');
+            });
+
+            // ===== 粒子背景 =====
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                    this.y = Math.random() * canvas.height;
+                }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = canvas.height + Math.random() * 40;
+                    this.size = Math.random() * 3 + 1.5;
+                    this.speedY = -(Math.random() * 0.6 + 0.2);
+                    this.speedX = (Math.random() - 0.5) * 0.35;
+                    this.opacity = Math.random() * 0.4 + 0.15;
+                    const r = Math.random();
+                    this.color = r < 0.5 ?
+                        `rgba(93,187,62,${this.opacity})` :
+                        (r < 0.8 ? `rgba(245,200,66,${this.opacity})` : `rgba(91,141,238,${this.opacity})`);
+                }
+                update() {
+                    this.y += this.speedY;
+                    this.x += this.speedX;
+                    if (this.y < -20) this.reset();
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(this.x, this.y, this.size, this.size);
+                }
+            }
+
+            function initParticles() {
+                const count = Math.min(Math.floor((canvas.width * canvas.height) / 18000), 100);
+                particles = Array.from({ length: count }, () => new Particle());
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update();
+                    p.draw(); });
+                requestAnimationFrame(animateParticles);
+            }
+
+            resizeCanvas();
+            initParticles();
+            animateParticles();
+            window.addEventListener('resize', () => { resizeCanvas();
+                initParticles(); });
+
+            // ===== Tab 切换 =====
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panels = {
+                home: document.getElementById('panel-home'),
+                servers: document.getElementById('panel-servers'),
+                features: document.getElementById('panel-features'),
+                about: document.getElementById('panel-about')
+            };
+
+            function switchTab(tabId) {
+                tabs.forEach(btn => {
+                    const isActive = btn.dataset.tab === tabId;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                Object.keys(panels).forEach(key => {
+                    panels[key].classList.toggle('active', key === tabId);
+                });
+
+                document.querySelector('.tab-nav-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.dataset.tab;
+                    if (tabId) switchTab(tabId);
+                });
+            });
+
+            document.querySelectorAll('[data-tab-trigger]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const tabId = el.dataset.tabTrigger;
+                    if (tabId) switchTab(tabId);
+                });
+            });
+
+            // ===== Toast =====
+            const toast = document.getElementById('toast');
+            let toastTimer;
+
+            function showToast(msg) {
+                toast.classList.remove('show');
+                void toast.offsetWidth;
+                toast.textContent = msg;
+                toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2200);
+            }
+
+            // ===== 复制 IP（生存服可用） =====
+            document.querySelectorAll('.btn-copy:not([disabled])').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const ip = btn.dataset.ip;
+                    try {
+                        await navigator.clipboard.writeText(ip);
+                        showToast('✅ IP 已复制到剪贴板');
+                    } catch {
+                        const input = document.createElement('input');
+                        input.value = ip;
+                        document.body.appendChild(input);
+                        input.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(input);
+                        showToast('✅ IP 已复制到剪贴板');
+                    }
+                });
+            });
+
+            // ===== 服务器状态查询（仅生存服） =====
+            async function fetchServerStatus(server) {
+                const url =
+                    `https://uapis.cn/api/v1/game/minecraft/serverstatus?server=${encodeURIComponent(server)}`;
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) return null;
+                    return await res.json();
+                } catch {
+                    return null;
+                }
+            }
+
+            function updateCard(card, data) {
+                const statusText = card.querySelector('.status-text');
+                const indicator = card.querySelector('.status-indicator');
+                const playerStrong = card.querySelector('.player-count strong');
+                const versionSpan = card.querySelector('.version-text');
+                const playerListBox = card.querySelector('.player-list-box');
+
+                // 如果是维护中的创造服，跳过自动更新（保持停服状态）
+                if (card.classList.contains('maintenance')) {
+                    return;
+                }
+
+                if (!data) {
+                    if (statusText) statusText.textContent = '查询失败';
+                    if (indicator) indicator.classList.add('offline');
+                    if (playerStrong) playerStrong.textContent = '? / ?';
+                    if (versionSpan) versionSpan.textContent = '未知';
+                    if (playerListBox) playerListBox.innerHTML = '<span style="color:var(--text-tertiary);">查询失败</span>';
+                    return;
+                }
+
+                if (data.online) {
+                    if (statusText) statusText.textContent = '在线运行中';
+                    if (indicator) indicator.classList.remove('offline');
+                    if (playerStrong) playerStrong.textContent = `${data.players || 0} / ${data.max_players || '?'}`;
+                    if (versionSpan) versionSpan.textContent = data.version || '未知';
+
+                    if (playerListBox) {
+                        const players = data.online_players;
+                        if (Array.isArray(players) && players.length > 0) {
+                            const names = players.map(p => p.name || '?');
+                            playerListBox.innerHTML = names.map(n =>
+                                `<span class="player-tag">${n}</span>`
+                            ).join('');
+                        } else {
+                            playerListBox.innerHTML = '<span style="color:var(--text-tertiary);">暂无在线玩家</span>';
+                        }
+                    }
+                } else {
+                    if (statusText) statusText.textContent = '离线中';
+                    if (indicator) indicator.classList.add('offline');
+                    if (playerStrong) playerStrong.textContent = '离线';
+                    if (versionSpan) versionSpan.textContent = '—';
+                    if (playerListBox) playerListBox.innerHTML = '<span style="color:var(--text-tertiary);">服务器离线</span>';
+                }
+            }
+
+            const survivalCard = document.querySelector('.server-card.survival');
+
+            async function refreshStatus() {
+                const survivalData = await fetchServerStatus('frp-van.com:41641');
+                updateCard(survivalCard, survivalData);
+            }
+
+            // ===== 初始化 =====
+            initTheme();
+            refreshStatus();
+            setInterval(refreshStatus, 90000);
+
+            // 创造服保持停服状态（不参与轮询）
+            console.log('🔧 创造服已进入停服维护模式');
+        })();
+    </script>
+
+</body>
+</html>
